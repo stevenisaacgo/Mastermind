@@ -9,10 +9,10 @@ public class App {
     static Integer numJugadas = 0;
     static Integer numJugada = 0;
     static String jugada;
-    private static List<Integer> numbers = new ArrayList<>();
+    private static ArrayList<Integer> numbers = new ArrayList<>();
 
     public static boolean checkInput(String input) {
-        List<Character> seen = new ArrayList<>();
+        ArrayList<Character> seen = new ArrayList<>();
 
         for (int i = 0; i < input.length(); i++) {
             char ch = input.charAt(i);
@@ -37,8 +37,8 @@ public class App {
 
         StringBuilder stringCombinacion = new StringBuilder();
 
-        List<Character> arrayJugada = new ArrayList<>();
-        List<Character> arrayCombinacion = new ArrayList<>();
+        ArrayList<Character> arrayJugada = new ArrayList<>();
+        ArrayList<Character> arrayCombinacion = new ArrayList<>();
 
         for (int i = 0; i < combinacionfinal.length(); i++) {
             char chComb = combinacionfinal.charAt(i);
@@ -115,7 +115,7 @@ public class App {
 
         while (checkInput(jugada) == false) {
             System.out.printf("Porfavor introduce correctamente la combinación de 4 digitos: ");
-            jugada = sc.nextLine();
+            jugada = sc.next();
         }
 
         verificarJugada(jugada);
