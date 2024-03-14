@@ -5,11 +5,11 @@ public class App {
     private static int min = 2;
     private static int max = 8;
     private static int longCombinacion = 4;
-    private static String combinacionfinal = "";
     static Integer numJugadas = 0;
     static Integer numJugada = 0;
     static String jugada;
-    private static ArrayList<Integer> numbers = new ArrayList<>();
+    private static byte[] numbersCSecreta = new byte[longCombinacion];
+    private static boolean gameDone;
 
     public static boolean checkInput(String input) {
         ArrayList<Character> seen = new ArrayList<>();
@@ -33,80 +33,121 @@ public class App {
         return true;
     }
 
-    public static String checkCombinacion(String combinacioString) {
+    public static boolean contains(byte[] array, byte element) {
+        for (byte b : array) {
+            if (b == element) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String checkCombinacion(byte[] combinacioString) {
 
         StringBuilder stringCombinacion = new StringBuilder();
 
-        ArrayList<Character> arrayJugada = new ArrayList<>();
-        ArrayList<Character> arrayCombinacion = new ArrayList<>();
-
-        for (int i = 0; i < combinacionfinal.length(); i++) {
-            char chComb = combinacionfinal.charAt(i);
-            arrayCombinacion.add(chComb);
-        }
-
-        for (int i = 0; i < combinacioString.length(); i++) {
-            char chJugada = combinacioString.charAt(i);
-            arrayJugada.add(chJugada);
-        }
-
-        for (int i = 0; i < arrayJugada.size(); i++) {
-            if (arrayJugada.get(i).equals(arrayCombinacion.get(i))) {
+        for (int i = 0; i < combinacioString.length; i++) {
+            // comparo las array de bytes
+            if (combinacioString[i] == numbersCSecreta[i]) {
                 stringCombinacion.append("X");
-            } else {
-                if (arrayCombinacion.contains(arrayJugada.get(i))) {
-                    stringCombinacion.append("O");
-                }
+            } else if (contains(numbersCSecreta, combinacioString[i])) {
+                stringCombinacion.append("O");
             }
+
         }
+
+        if (stringCombinacion.equals("XXXX")) {
+            gameDone = true;
+        }
+
+        // ArrayList<Character> arrayJugada = new ArrayList<>();
+        // ArrayList<Character> arrayCombinacion = new ArrayList<>();
+
+        // for (int i = 0; i < combinacionfinal.length(); i++) {
+        // char chComb = combinacionfinal.charAt(i);
+        // arrayCombinacion.add(chComb);
+        // }
+
+        // for (int i = 0; i < combinacioString.length(); i++) {
+        // char chJugada = combinacioString.charAt(i);
+        // arrayJugada.add(chJugada);
+        // }
+
+        // for (int i = 0; i < arrayJugada.size(); i++) {
+        // if (arrayJugada.get(i).equals(arrayCombinacion.get(i))) {
+        // stringCombinacion.append("X");
+        // } else {
+        // if (arrayCombinacion.contains(arrayJugada.get(i))) {
+        // stringCombinacion.append("O");
+        // }
+        // }
+        // }
 
         return stringCombinacion.toString();
     }
 
+    public static byte[] convertStringToByteArray(String str) {
+        int[] intArray = new int[str.length()];
+
+        // convierto de string a int array
+
+        for (int i = 0; i < str.length(); i++) {
+            intArray[i] = Character.getNumericValue(str.charAt(i));
+        }
+
+        // convierto de int array a byte array
+        byte[] byteArray = new byte[intArray.length];
+        for (int i = 0; i < intArray.length; i++) {
+            byteArray[i] = (byte) intArray[i];
+        }
+
+        return byteArray;
+    }
+
     public static void verificarJugada(String jugada) {
-        while (!jugada.equals(combinacionfinal) && numJugada < numJugadas) {
-            String mensajeFinal = checkCombinacion(jugada);
+
+        byte[] jugadaByte = convertStringToByteArray(jugada);
+
+        while (gameDone == false && numJugada < numJugadas) {
+
+            String mensajeFinal = checkCombinacion(jugadaByte);
             System.out.println(" Jugada " + numJugada + ": " + jugada + " " + mensajeFinal);
             System.out.printf("introduce nueva combinación: ");
             jugada = sc.next();
+            jugadaByte = convertStringToByteArray(jugada);
             while (checkInput(jugada) == false) {
                 System.out.printf("Porfavor introduce correctamente la combinación de 4 digitos: ");
-                jugada = sc.nextLine();
+                jugada = sc.next();
+                jugadaByte = convertStringToByteArray(jugada);
             }
             numJugada++;
         }
-        String mensajeFinal = checkCombinacion(jugada);
-        System.out.println(" Jugada " + numJugada + ": " + jugada + " " + mensajeFinal);
+        String mensajeFinal = checkCombinacion(jugadaByte);
+        System.out.println(" Jugada " + numJugada + ": " + jugada + " " +
+                mensajeFinal);
         if (numJugada < numJugadas) {
             System.out.println("Has ganado!!");
         } else {
-            System.out.println("Has perdido la combinación correcta era: " + combinacionfinal);
+            System.out.println("Has perdido la combinación correcta era: " +
+                    numbersCSecreta);
+
         }
 
     }
 
-    public static String generaCSecreta() {
-        String combinacion = "";
-        numbers.clear();
-        for (int i = min; i <= max; i++) {
-            numbers.add(i);
+    public static void generaCSecreta() {
+
+        Set<Byte> uniqueSet = new HashSet<>();
+
+        int index = 0;
+        while (uniqueSet.size() < longCombinacion) {
+            byte newByte = (byte) (Math.random() * (max - min + 1) + min);
+            if (!uniqueSet.contains(newByte)) {
+                numbersCSecreta[index] = newByte;
+                uniqueSet.add(newByte);
+                index++;
+            }
         }
-
-        for (int i = 0; i < longCombinacion; i++) {
-
-            Random rndGen = new Random();
-
-            int rndIndex = rndGen.nextInt(numbers.size());
-
-            int rndNumber = numbers.get(rndIndex);
-
-            numbers.remove(rndIndex);
-
-            combinacion = combinacion + Integer.toString(rndNumber);
-
-        }
-
-        return combinacion;
     }
 
     public static void pedirJugada() {
@@ -123,8 +164,8 @@ public class App {
     }
 
     public static void IniciarJuego() {
-        combinacionfinal = generaCSecreta();
-        System.out.println("Combinación final: " + combinacionfinal);
+        generaCSecreta();
+        System.out.println("Combinación final: " + numbersCSecreta);
 
         System.out.printf("Introducir número maximo de intentos o jugadas: ");
         numJugadas = sc.nextInt();
